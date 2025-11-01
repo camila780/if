@@ -1,61 +1,84 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="utf-8">
-    <title>Folder Toxemia da Prenhez - IFSULDEMINAS - Bacharelado em Medicina Veterinária</title>
-    <link rel="shortcut icon" href="logo.png" type="image/png">
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        main {
-            width: 100%;
-            max-width: 900px; /* limita a largura máxima */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px; /* espaçamento entre as imagens */
-            padding: 40px 20px;
-            box-sizing: border-box;
-        }
-
-        img {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-
-        footer {
-            width: 100%;
-            text-align: center;
-            background-color: #1a5e2a;
-            color: white;
-            padding: 10px 0;
-            font-size: 14px;
-            margin-top: 40px;
-        }
-    </style>
+  <meta charset="utf-8">
+  <title>Folder Toxemia - Baixar PDF</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; display:flex; flex-direction:column; align-items:center; background:#f7f7f7; }
+    main { width:100%; max-width:900px; padding:40px 20px; box-sizing:border-box; display:flex; flex-direction:column; gap:30px; align-items:center; }
+    img { width:100%; height:auto; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.12); }
+    .download-btn {
+      background:#1a5e2a; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none;
+      display:inline-block; cursor:pointer; border:none; font-size:16px;
+    }
+    footer { width:100%; text-align:center; background:#1a5e2a; color:white; padding:10px 0; margin-top:40px; }
+  </style>
 </head>
-
 <body>
-    <main>
-        <img src="frente.png" alt="Folder Frente">
-        <img src="verso.png" alt="Folder Verso">
-    </main>
+  <main>
+    <img src="frente.png" alt="Frente">
+    <img src="verso.png" alt="Verso">
 
-    <footer>
+    <!-- Botão que inicia o processo de download -->
+    <button id="btnDriveDownload" class="download-btn">📄 Baixar Folder (PDF do Drive)</button>
+  </main>
+
+ <footer>
         <p>Conteúdo desenvolvido pelas discentes Camila Bonfim, Jamilly Marciano, Marcela Mazzaro e Larah Melo para atividade de extensão do dia de campo do IFSULDEMINAS Campus Muzambinho</p>
         <p>Site desenvolvido pela discente Camila Bonfim</p>
     </footer>
+    
+  <script>
+    (function(){
+      // ID do arquivo no Google Drive (já extraído do link que você forneceu)
+      const fileId = "1LTrT7yhLTijA_EgKQd3Xtu-gnE__qMZW";
+
+      // URL "direta" do Drive (padrão usado para forçar download)
+      const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+      const btn = document.getElementById("btnDriveDownload");
+
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        btn.textContent = "Iniciando download...";
+
+        // Primeiro: tenta usar fetch() para baixar o arquivo e salvar como blob
+        // OBS: isto só funcionará se o Drive permitir CORS (ou seja: arquivo público)
+        try {
+          const resp = await fetch(directUrl, { method: "GET", credentials: "omit" });
+          if (!resp.ok) throw new Error("Resposta não OK: " + resp.status);
+
+          const blob = await resp.blob();
+
+          // Cria um link temporário e força o download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+
+          // sugere um nome de arquivo
+          a.download = "Folder_Toxemia_da_Prenhez.pdf";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+
+          btn.textContent = "Download iniciado ✅";
+          setTimeout(() => { btn.textContent = "📄 Baixar Folder (PDF do Drive)"; btn.disabled = false; }, 2000);
+          return;
+        } catch (fetchErr) {
+          // Se deu erro (CORS ou outra coisa), faz fallback abrindo o link direto do Drive
+          console.warn("fetch() falhou — fallback para abrir o link direto:", fetchErr);
+          alert("Não foi possível baixar automaticamente (restrição do Drive/CORS). Vou abrir o link em uma nova aba — clique em 'Salvar como' se necessário.");
+          // Abre em nova aba. O Google Drive geralmente mostrará a visualização com botão de download.
+          window.open(directUrl, "_blank", "noopener");
+
+          btn.textContent = "Abrindo link do Drive...";
+          setTimeout(() => { btn.textContent = "📄 Baixar Folder (PDF do Drive)"; btn.disabled = false; }, 1500);
+          return;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
-
-
